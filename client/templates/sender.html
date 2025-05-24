@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Secure File Transfer - Sender</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+    <div class="container">
+        <h1>Giao diện Người gửi</h1>
+
+        <label for="fileInput">Chọn file cần gửi</label>
+        <input type="file" id="fileInput" />
+
+        <label for="fileContent">Nội dung file (có thể chỉnh sửa)</label>
+        <textarea id="fileContent" placeholder="Nội dung file sẽ hiển thị ở đây..."></textarea>
+
+        <label for="receiverId">ID Người nhận</label>
+        <input type="text" id="receiverId" placeholder="Nhập client ID người nhận" />
+
+        <label for="privateKeyInput">Khóa Private của bạn (PEM)</label>
+        <textarea id="privateKeyInput" placeholder="Dán khóa private PEM của bạn ở đây..."></textarea>
+
+        <button id="sendBtn">Ký, Mã hóa và Gửi</button>
+
+        <div id="statusMessage"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/socket.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/crypto.js') }}"></script>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/jsrsasign"></script>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Secure File Transfer - Receiver</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+    <div class="container">
+        <h1>Giao diện Người nhận</h1>
+
+        <label for="clientIdInput">Nhập ID của bạn</label>
+        <input type="text" id="clientIdInput" placeholder="Nhập client ID của bạn" />
+        <button id="joinRoomBtn">Kết nối</button>
+
+        <div id="fileSection" style="display:none;">
+            <h2>File nhận được</h2>
+            <div id="signatureStatus"></div>
+            <label for="receivedFileContent">Nội dung file (đã giải mã)</label>
+            <textarea id="receivedFileContent" readonly></textarea>
+
+            <button id="downloadBtn">Tải file xuống</button>
+        </div>
+
+        <div id="statusMessage"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/socket.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/crypto.js') }}"></script>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/jsrsasign"></script>
+</html>

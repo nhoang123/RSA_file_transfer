@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Secure File Transfer - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+    <div class="container">
+        <h1>Secure File Transfer</h1>
+        <p>Ứng dụng truyền file bảo mật với mã hóa RSA và chữ ký số.</p>
+        <div class="flex-row">
+            <a href="{{ url_for('sender') }}"><button>Giao diện Người gửi</button></a>
+            <a href="{{ url_for('receiver') }}"><button>Giao diện Người nhận</button></a>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/jsrsasign"></script>
+</html>
