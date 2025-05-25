@@ -2,19 +2,6 @@
 
 Hệ thống truyền file an toàn sử dụng mã hóa RSA, chữ ký số và WebSocket để đảm bảo tính bảo mật và toàn vẹn dữ liệu.
 
-## 📋 Tính năng chính
-
-- ✅ **Mã hóa RSA 2048-bit**: Bảo vệ file với thuật toán mã hóa mạnh
-- ✅ **Chữ ký số**: Xác thực nguồn gốc và đảm bảo file không bị thay đổi
-- ✅ **Hybrid Encryption**: Kết hợp RSA và AES cho file lớn
-- ✅ **Real-time Communication**: Sử dụng WebSocket để truyền file nhanh chóng
-- ✅ **Chỉnh sửa file**: Cho phép người gửi chỉnh sửa nội dung file trước khi gửi
-- ✅ **Kiểm tra toàn vẹn**: Cảnh báo khi file bị thay đổi trong quá trình truyền
-- ✅ **Lịch sử truyền file**: Theo dõi tất cả file đã gửi/nhận
-- ✅ **Danh sách người dùng online**: Xem ai đang trực tuyến
-
-## 🚀 Cài đặt nhanh
-
 ### Yêu cầu hệ thống
 - Python 3.8+
 - pip
@@ -172,31 +159,6 @@ secure-file-transfer/
 - **Hash verification**: Kiểm tra tính toàn vẹn
 - **HTTPS recommended**: Sử dụng SSL/TLS cho production
 
-### Lưu ý quan trọng
-- Bảo mật khóa riêng tư cẩn thận
-- Không chia sẻ khóa riêng tư với bất kỳ ai
-- Sử dụng HTTPS khi deploy production
-- Định kỳ backup khóa quan trọng
-
-## 🧪 Testing
-
-### Chạy unit tests
-```bash
-pytest tests/
-```
-
-### Test thủ công
-1. Mở 2 browser tab/window
-2. Tab 1: Đăng nhập là Alice (sender)
-3. Tab 2: Đăng nhập là Bob (receiver)
-4. Gửi file từ Alice đến Bob
-5. Kiểm tra xác thực và giải mã
-
-### Test file bị thay đổi
-1. Gửi file bình thường
-2. Sửa database để thay đổi hash
-3. Nhận và kiểm tra cảnh báo
-
 ## 🚀 Deployment
 
 ### Development
@@ -210,64 +172,10 @@ pip install gunicorn
 gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:5000 run:app
 ```
 
-### Docker
-```dockerfile
-FROM python:3.9-slim
-
-WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-EXPOSE 5000
-
-CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "--bind", "0.0.0.0:5000", "run:app"]
-```
-
 Build và chạy:
 ```bash
 docker build -t secure-file-transfer .
 docker run -p 5000:5000 secure-file-transfer
 ```
-
-## 🐛 Troubleshooting
-
-### WebSocket không kết nối
-- Kiểm tra firewall
-- Đảm bảo port 5000 không bị chặn
-- Kiểm tra console browser để xem lỗi
-
-### Mã hóa/giải mã thất bại
-- Kiểm tra format khóa PEM
-- Đảm bảo khóa public/private đúng cặp
-- Kiểm tra kích thước file không vượt quá giới hạn
-
-### File upload thất bại
-- Kiểm tra kích thước file (mặc định 16MB)
-- Kiểm tra định dạng file được phép
-- Đảm bảo thư mục uploads có quyền ghi
-
-## 📝 API Documentation
-
-### REST Endpoints
-- `GET /` - Trang chủ
-- `GET /sender` - Giao diện người gửi
-- `GET /receiver` - Giao diện người nhận
-- `POST /api/generate_keys` - Tạo cặp khóa RSA
-- `GET /api/public_key/<user_id>` - Lấy khóa công khai
-- `POST /api/upload` - Upload file
-- `POST /api/encrypt_and_send` - Mã hóa và gửi file
-- `POST /api/decrypt_file` - Giải mã file
-
-### WebSocket Events
-- `connect` - Kết nối với server
-- `register_user` - Đăng ký người dùng
-- `request_public_key` - Yêu cầu khóa công khai
-- `send_file` - Gửi file đã mã hóa
-- `download_file` - Tải file về
-- `get_online_users` - Lấy danh sách online
-- `get_transfer_history` - Lấy lịch sử transfer
 
 
