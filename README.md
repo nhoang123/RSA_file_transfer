@@ -1,154 +1,273 @@
-# Secure File Transfer - Hệ Thống Truyền File Bảo Mật với RSA và Chữ Ký Số
+# 🔐 Hệ thống truyền file bảo mật với RSA và chữ ký số
 
-## Mô tả dự án
+Hệ thống truyền file an toàn sử dụng mã hóa RSA, chữ ký số và WebSocket để đảm bảo tính bảo mật và toàn vẹn dữ liệu.
 
-Ứng dụng web truyền file bảo mật giữa client và server sử dụng:
+## 📋 Tính năng chính
 
-- **Mã hóa RSA** để đảm bảo chỉ người nhận mới đọc được file  
-- **Chữ ký số (Digital Signature)** để xác thực người gửi và kiểm tra tính toàn vẹn file  
-- **Giao tiếp WebSocket realtime** giữa client và server  
-- Giao diện thân thiện cho người gửi và người nhận
+- ✅ **Mã hóa RSA 2048-bit**: Bảo vệ file với thuật toán mã hóa mạnh
+- ✅ **Chữ ký số**: Xác thực nguồn gốc và đảm bảo file không bị thay đổi
+- ✅ **Hybrid Encryption**: Kết hợp RSA và AES cho file lớn
+- ✅ **Real-time Communication**: Sử dụng WebSocket để truyền file nhanh chóng
+- ✅ **Chỉnh sửa file**: Cho phép người gửi chỉnh sửa nội dung file trước khi gửi
+- ✅ **Kiểm tra toàn vẹn**: Cảnh báo khi file bị thay đổi trong quá trình truyền
+- ✅ **Lịch sử truyền file**: Theo dõi tất cả file đã gửi/nhận
+- ✅ **Danh sách người dùng online**: Xem ai đang trực tuyến
 
----
+## 🚀 Cài đặt nhanh
 
-## Cấu trúc thư mục
+### Yêu cầu hệ thống
+- Python 3.8+
+- pip
+- Browser hiện đại (Chrome, Firefox, Safari, Edge)
 
-secure-file-transfer/
-├── server/
-│ ├── app.py # Flask server chính, chạy WebSocket
-│ ├── crypto_utils.py # Hàm mã hóa, giải mã, ký số
-│ ├── key_manager.py # Quản lý khóa RSA (tạo, lưu, load)
-│ ├── file_handler.py # Xử lý file (nếu có)
-│ ├── socket_events.py # Sự kiện WebSocket (nếu tách riêng)
-│ ├── models.py # Mô hình dữ liệu (nếu dùng)
-│ ├── constants.py # Hằng số chung
-│ ├── keys/ # Thư mục chứa khóa private/public server và client
-│ └── tests/ # Thư mục chứa các file test
-├── client/
-│ ├── static/
-│ │ ├── css/
-│ │ │ └── style.css # Style cho giao diện
-│ │ ├── js/
-│ │ │ ├── crypto.js # Mã hóa, ký số phía client
-│ │ │ ├── socket.js # Quản lý WebSocket client
-│ │ │ └── main.js # Logic chính giao diện client
-│ └── templates/
-│ ├── index.html # Trang chính
-│ ├── sender.html # Giao diện người gửi
-│ └── receiver.html # Giao diện người nhận
-├── requirements.txt # Danh sách thư viện Python cần cài
-└── README.md # File hướng dẫn này
-
-yaml
-Copy
-
----
-
-## Yêu cầu
-
-- Python 3.7 trở lên  
-- Thư viện Python: Flask, Flask-SocketIO, pycryptodome, eventlet  
-- Trình duyệt hiện đại hỗ trợ WebSocket và JavaScript
-
----
-
-## Hướng dẫn cài đặt và chạy
-
-### 1. Tạo môi trường ảo và cài dependencies
-
+### Bước 1: Clone repository
 ```bash
+git clone https://github.com/yourusername/secure-file-transfer.git
+cd secure-file-transfer
+```
+
+### Bước 2: Tạo môi trường ảo (khuyến nghị)
+```bash
+# Windows
+python -m venv venv
+venv\Scripts\activate
+
+# Linux/Mac
 python3 -m venv venv
-source venv/bin/activate      # Linux/macOS
-venv\Scripts\activate         # Windows CMD
+source venv/bin/activate
+```
 
+### Bước 3: Cài đặt dependencies
+```bash
 pip install -r requirements.txt
-2. Tạo khóa RSA cho server (chạy 1 lần)
-bash
-Copy
-python server/key_manager.py
-3. Tạo khóa client
-Chạy script tương tự key_manager.py trên client hoặc tạo khóa thủ công
+```
 
-Đảm bảo client giữ private key an toàn và upload public key lên server qua API
+### Bước 4: Cấu hình môi trường
+```bash
+# Copy file .env mẫu
+cp .env.example .env
 
-4. Chạy server Flask
-bash
-Copy
-python server/app.py
-Server chạy tại địa chỉ: http://localhost:5000
+# Chỉnh sửa file .env theo nhu cầu
+# Mặc định có thể chạy ngay không cần chỉnh sửa
+```
 
-Cách sử dụng giao diện
-Trang chính
-Truy cập http://localhost:5000/ để vào trang chính
+### Bước 5: Chạy ứng dụng
+```bash
+python run.py
+```
 
-Chọn vào “Giao diện Người gửi” hoặc “Giao diện Người nhận”
+Mở browser và truy cập: http://localhost:5000
 
-Giao diện Người gửi
-Chọn file cần gửi
+## 📖 Hướng dẫn sử dụng
 
-Nội dung file sẽ hiển thị trong ô có thể chỉnh sửa
+### Người gửi file
 
-Nhập ID người nhận (client_id)
+1. **Truy cập trang Người gửi**
+   - Từ trang chủ, click vào "Người gửi"
 
-Dán khóa private PEM của bạn để ký file
+2. **Đăng ký/Kết nối**
+   - Nhập ID người dùng (ví dụ: alice)
+   - Click "Đăng ký / Kết nối"
+   - Hệ thống sẽ tự động tạo cặp khóa RSA
 
-Nhấn nút Ký, Mã hóa và Gửi
+3. **Nhập khóa riêng tư**
+   - Copy khóa riêng tư từ hệ thống hoặc sử dụng khóa có sẵn
+   - Paste vào ô "Nhập khóa riêng tư"
 
-File được mã hóa bằng khóa public người nhận, ký bằng private key bạn nhập và gửi qua WebSocket đến server
+4. **Chọn file để gửi**
+   - Click "Chọn file"
+   - Chọn file từ máy tính (hỗ trợ: txt, pdf, png, jpg, doc, json, xml...)
+   - Với file text: có thể chỉnh sửa nội dung trước khi gửi
 
-Giao diện Người nhận
-Nhập ID của bạn (client_id)
+5. **Chọn người nhận**
+   - Nhập ID người nhận (ví dụ: bob)
+   - Click "Lấy khóa công khai"
+   - Hoặc chọn từ danh sách người dùng online
 
-Nhấn nút Kết nối để tham gia phòng nhận file
+6. **Mã hóa và gửi**
+   - Click "Mã hóa và gửi"
+   - Theo dõi tiến trình qua progress bar
+   - Nhận thông báo khi gửi thành công
 
-Khi có file gửi đến, bạn sẽ được hỏi dán khóa private PEM để giải mã file
+### Người nhận file
 
-Nội dung file sau giải mã hiển thị trên giao diện
+1. **Truy cập trang Người nhận**
+   - Từ trang chủ, click vào "Người nhận"
 
-Trạng thái chữ ký số được hiển thị (hợp lệ hoặc không hợp lệ)
+2. **Đăng ký/Kết nối**
+   - Nhập ID người dùng (ví dụ: bob)
+   - Click "Đăng ký / Kết nối"
 
-Bạn có thể tải file đã giải mã về máy
+3. **Nhập khóa riêng tư**
+   - Nhập khóa riêng tư của bạn
 
-Kiến trúc kỹ thuật
-Mã hóa RSA: File được mã hóa bằng public key người nhận.
+4. **Xem file đã nhận**
+   - File nhận được sẽ hiển thị trong danh sách
+   - Click "Tải về & Giải mã" để xử lý file
 
-Chữ ký số: Hash file (SHA-256) được ký bằng private key người gửi.
+5. **Giải mã và xác thực**
+   - Hệ thống sẽ tự động:
+     - Xác thực chữ ký số
+     - Kiểm tra tính toàn vẹn
+     - Giải mã file
+   - Xem kết quả xác thực
 
-WebSocket: Dùng Flask-SocketIO để kết nối realtime giữa client và server.
+6. **Tải file**
+   - Nếu xác thực thành công, click "Tải file đã giải mã"
+   - File sẽ được lưu về máy
 
-Quản lý khóa: Khóa RSA được lưu trữ an toàn trên server và client.
+## 🔧 Cấu hình nâng cao
 
-Client: Xử lý mã hóa, ký, giải mã, xác thực bằng thư viện JS (ví dụ jsrsasign).
+### File .env
+```bash
+# Flask Configuration
+FLASK_APP=run.py
+FLASK_ENV=development
+SECRET_KEY=your-secret-key-change-this-in-production
 
-Server: Chuyển tiếp dữ liệu giữa các client thông qua WebSocket.
+# Server Configuration
+HOST=127.0.0.1
+PORT=5000
 
-API chính
-POST /upload_client_public_key : Upload public key client lên server
+# Database
+DATABASE_URL=sqlite:///secure_transfer.db
 
-GET /get_public_key?client_id=xxx : Lấy public key client theo id (dùng khi mã hóa hoặc xác thực)
+# File Upload
+MAX_CONTENT_LENGTH=16777216  # 16MB
+UPLOAD_FOLDER=uploads
+ALLOWED_EXTENSIONS=txt,pdf,png,jpg,jpeg,gif,doc,docx,json,xml
 
-WebSocket event:
+# Security
+RSA_KEY_SIZE=2048
+SESSION_TIMEOUT=3600  # 1 hour
+```
 
-'join': client gửi để tham gia phòng
+### Cấu trúc thư mục
+```
+secure-file-transfer/
+├── server/               # Backend code
+│   ├── app.py           # Flask application
+│   ├── crypto_utils.py  # Encryption/decryption
+│   ├── key_manager.py   # RSA key management
+│   ├── file_handler.py  # File operations
+│   └── socket_events.py # WebSocket handlers
+├── client/              # Frontend code
+│   ├── static/          # CSS, JavaScript
+│   └── templates/       # HTML templates
+├── shared/              # Shared modules
+├── uploads/             # Temporary file storage
+├── keys/                # Key storage
+├── tests/               # Unit tests
+├── requirements.txt     # Python dependencies
+├── run.py              # Entry point
+└── README.md           # This file
+```
 
-'send_encrypted_file': gửi file mã hóa + chữ ký
+## 🔒 Bảo mật
 
-'receive_encrypted_file': server phát lại file cho client nhận
+### Các biện pháp bảo mật
+- **Khóa riêng tư không bao giờ được gửi lên server**
+- **Mã hóa hybrid**: RSA cho khóa AES, AES cho file
+- **Chữ ký số**: Đảm bảo file không bị giả mạo
+- **Hash verification**: Kiểm tra tính toàn vẹn
+- **HTTPS recommended**: Sử dụng SSL/TLS cho production
 
-Ghi chú quan trọng
-Bảo mật khóa private: Tuyệt đối không gửi hoặc lưu khóa private lên server
+### Lưu ý quan trọng
+- Bảo mật khóa riêng tư cẩn thận
+- Không chia sẻ khóa riêng tư với bất kỳ ai
+- Sử dụng HTTPS khi deploy production
+- Định kỳ backup khóa quan trọng
 
-Xác thực client: Cần bổ sung xác thực (token, login) để tránh giả mạo client_id
+## 🧪 Testing
 
-Kích thước file: RSA chỉ mã hóa file nhỏ, với file lớn cần hybrid encryption (AES + RSA)
+### Chạy unit tests
+```bash
+pytest tests/
+```
 
-CORS: Trong phát triển cho phép cors_allowed_origins="*", khi deploy cần cấu hình lại
+### Test thủ công
+1. Mở 2 browser tab/window
+2. Tab 1: Đăng nhập là Alice (sender)
+3. Tab 2: Đăng nhập là Bob (receiver)
+4. Gửi file từ Alice đến Bob
+5. Kiểm tra xác thực và giải mã
 
-Phần mở rộng
-Mã hóa file lớn với hybrid AES + RSA
+### Test file bị thay đổi
+1. Gửi file bình thường
+2. Sửa database để thay đổi hash
+3. Nhận và kiểm tra cảnh báo
 
-Giao diện nâng cao, upload file nhiều định dạng, đa phần chunk file lớn
+## 🚀 Deployment
 
-Lưu lịch sử truyền file trên server hoặc database
+### Development
+```bash
+python run.py
+```
 
-Hệ thống xác thực, phân quyền người dùng
+### Production với Gunicorn
+```bash
+pip install gunicorn
+gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:5000 run:app
+```
+
+### Docker
+```dockerfile
+FROM python:3.9-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 5000
+
+CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "--bind", "0.0.0.0:5000", "run:app"]
+```
+
+Build và chạy:
+```bash
+docker build -t secure-file-transfer .
+docker run -p 5000:5000 secure-file-transfer
+```
+
+## 🐛 Troubleshooting
+
+### WebSocket không kết nối
+- Kiểm tra firewall
+- Đảm bảo port 5000 không bị chặn
+- Kiểm tra console browser để xem lỗi
+
+### Mã hóa/giải mã thất bại
+- Kiểm tra format khóa PEM
+- Đảm bảo khóa public/private đúng cặp
+- Kiểm tra kích thước file không vượt quá giới hạn
+
+### File upload thất bại
+- Kiểm tra kích thước file (mặc định 16MB)
+- Kiểm tra định dạng file được phép
+- Đảm bảo thư mục uploads có quyền ghi
+
+## 📝 API Documentation
+
+### REST Endpoints
+- `GET /` - Trang chủ
+- `GET /sender` - Giao diện người gửi
+- `GET /receiver` - Giao diện người nhận
+- `POST /api/generate_keys` - Tạo cặp khóa RSA
+- `GET /api/public_key/<user_id>` - Lấy khóa công khai
+- `POST /api/upload` - Upload file
+- `POST /api/encrypt_and_send` - Mã hóa và gửi file
+- `POST /api/decrypt_file` - Giải mã file
+
+### WebSocket Events
+- `connect` - Kết nối với server
+- `register_user` - Đăng ký người dùng
+- `request_public_key` - Yêu cầu khóa công khai
+- `send_file` - Gửi file đã mã hóa
+- `download_file` - Tải file về
+- `get_online_users` - Lấy danh sách online
+- `get_transfer_history` - Lấy lịch sử transfer
+
+
