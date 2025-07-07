@@ -49,8 +49,8 @@ class CryptoClient {
     }
 
     /**
-     * Create digital signature
-     * @param {string} data - Data to sign
+     * Create digital signature (metadata canonicalized)
+     * @param {string} data - Data to sign (canonicalized string)
      * @param {string} privateKey - Private key for signing
      * @returns {string} Base64 encoded signature
      */
@@ -64,8 +64,8 @@ class CryptoClient {
     }
 
     /**
-     * Verify digital signature
-     * @param {string} data - Original data
+     * Verify digital signature (metadata canonicalized)
+     * @param {string} data - Original data (canonicalized string)
      * @param {string} signature - Signature to verify
      * @param {string} publicKey - Public key for verification
      * @returns {boolean} True if signature is valid

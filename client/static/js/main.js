@@ -245,9 +245,16 @@ function setupReceiverSocketListeners() {
     socketManager.on('file_download_ready', (data) => {
         if (data.status === 'success') {
             currentTransferId = data.transfer_id;
+            // LUÔN dùng metadataString gốc từ phía gửi, không parse/stringify lại để verify!
             window.currentEncryptedPackage = data.encrypted_package;
             window.currentSenderId = data.sender_id;
-            
+            // Nếu cần hiển thị metadata ra giao diện/log, chỉ parse để show, không dùng object này để verify
+            if (data.encrypted_package.metadataString) {
+                try {
+                    const metaObj = JSON.parse(data.encrypted_package.metadataString);
+                    console.log('[RECEIVER][SHOW] metadata:', metaObj);
+                } catch (e) {}
+            }
             document.getElementById('process-section').style.display = 'block';
             document.getElementById('process-file-name').textContent = data.encrypted_package.file_name;
             document.getElementById('process-sender').textContent = data.sender_id;
@@ -313,53 +320,38 @@ function handleFileSelect(event) {
  * Handle encrypt and send
  */
 async function handleEncryptAndSend() {
-    if (!currentFile || !currentFileContent) {
-        showStatus('Vui lòng chọn file', 'error');
+    if (!currentFile || !currentFileContent || !privateKey || !socketManager.recipientPublicKey) {
+        showStatus('Thiếu thông tin file, khóa hoặc người nhận', 'error');
         return;
     }
-    
-    if (!privateKey) {
-        showStatus('Vui lòng nhập khóa riêng tư', 'error');
-        return;
-    }
-    
-    const recipientId = document.getElementById('recipient-id').value.trim();
-    if (!recipientId) {
-        showStatus('Vui lòng nhập ID người nhận', 'error');
-        return;
-    }
-    
-    if (!socketManager.recipientPublicKey) {
-        showStatus('Vui lòng lấy khóa công khai của người nhận', 'error');
-        return;
-    }
-    
     try {
-        // Show progress
-        document.getElementById('send-progress').style.display = 'block';
         updateProgress(20, 'Đang mã hóa file...');
-        
         // Encrypt file
         const encryptedPackage = cryptoClient.hybridEncrypt(
             currentFileContent,
             socketManager.recipientPublicKey,
             privateKey
         );
-        
         updateProgress(50, 'Đang ký số...');
-        
-        // Add metadata
-        encryptedPackage.file_name = currentFile.name;
-        encryptedPackage.file_size = currentFile.size;
-        encryptedPackage.timestamp = new Date().toISOString();
-        
+        // Tạo metadata object
+        const metadata = {
+            filename: currentFile.name,
+            timestamp: new Date().toISOString(),
+            filetype: currentFile.type || 'application/octet-stream',
+            expiration: new Date(Date.now() + 2*60*1000).toISOString() // 2 phút
+        };
+        // Serialize metadata bằng canonical JSON
+        const metadataString = canonicalize(metadata);
+        // Ký metadataString
+        const metadataSignature = cryptoClient.signData(metadataString, privateKey);
+        // Gửi metadataString, signature, và các trường khác
+        encryptedPackage.metadataString = metadataString;
+        encryptedPackage.metadataSignature = metadataSignature;
+        // ... gửi các trường khác như cũ ...
+        encryptedPackage.metadata = metadata; // vẫn gửi object để hiển thị
         updateProgress(70, 'Đang gửi file...');
-        
-        // Send file
         socketManager.sendFile(recipientId, encryptedPackage);
-        
         updateProgress(90, 'Đang xác nhận...');
-        
     } catch (error) {
         console.error('Encryption error:', error);
         showStatus('Lỗi mã hóa file: ' + error.message, 'error');
@@ -411,7 +403,22 @@ async function performDecryption(forceContinue) {
             socketManager.recipientPublicKey
         );
         
-        updateDecryptProgress(70, 'Đang xác thực chữ ký...');
+        // Verify metadata signature
+        const metadataString = window.currentEncryptedPackage.metadataString;
+        const metadataSignature = window.currentEncryptedPackage.metadataSignature;
+        const senderPublicKey = socketManager.recipientPublicKey; // hoặc lấy đúng trường public key sender
+        let metadataSignatureValid = false;
+        if (metadataString && metadataSignature && senderPublicKey) {
+            // LUÔN dùng string gốc đã ký từ phía gửi, không parse/stringify lại!
+            metadataSignatureValid = cryptoClient.verifySignature(metadataString, metadataSignature, senderPublicKey);
+        }
+        // Log kết quả xác thực metadata signature
+        // Nếu cần hiển thị metadata ra giao diện/log, chỉ parse để show, không dùng object này để verify
+        let metadataObj = null;
+        try {
+            metadataObj = JSON.parse(metadataString);
+        } catch (e) { metadataObj = null; }
+        console.log('[RECEIVER][VERIFY] metadata:', metadataObj);
         
         // Check if file is corrupted
         if (!result.integrityValid && !forceContinue) {
@@ -423,7 +430,7 @@ async function performDecryption(forceContinue) {
         updateDecryptProgress(90, 'Hoàn thành!');
         
         // Show results
-        showDecryptionResults(result);
+        showDecryptionResults({ ...result, metadataSignatureValid });
         
         // Report to server
         socketManager.reportDecryptionResult(currentTransferId, result);
@@ -489,6 +496,21 @@ function showDecryptionResults(result) {
     }
     
     document.getElementById('decrypt-progress').style.display = 'none';
+}
+
+/**
+ * Canonicalize JSON: sort keys alphabetically for consistent signature
+ */
+function canonicalize(obj) {
+    if (Array.isArray(obj)) {
+        return `[${obj.map(canonicalize).join(",")}]`;
+    } else if (obj && typeof obj === "object") {
+        return `{${Object.keys(obj).sort().map(
+            k => JSON.stringify(k) + ":" + canonicalize(obj[k])
+        ).join(",")}}`;
+    } else {
+        return JSON.stringify(obj);
+    }
 }
 
 /**
